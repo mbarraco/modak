@@ -3,32 +3,45 @@ from enum import Enum
 import re
 
 
-def is_valid_email(s: str) -> bool:
-    exp = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+def _is_valid_email(s: str) -> bool:
+    exp = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b"
     return re.match(exp, s)
 
 
-@dataclass(frozen=True)
-class EmailContent:
-    from_email: str
-    body: str
-    subject: str
-    to_email: str
+class Notification:
+    def __init__(
+        self,
+        from_email: str,
+        body: str,
+        subject: str,
+        to_email: str,
+        notification_type: "NotificationType",
+    ):
+        self.from_email = from_email
+        self.body = body
+        self.subject = subject
+        self.to_email = to_email
+        self.notification_type = notification_type
+        self._validate()
+
+    def _validate(self) -> None:
+        if not _is_valid_email(self.to_email):
+            raise ValueError(f"Invalid email address: {self.to_email}")
+        if not _is_valid_email(self.from_email):
+            raise ValueError(f"Invalid email address: {self.to_email}")
+
 
 class NotificationType(Enum):
-    SUPDATESUPDATE = 1
-    DAILY_NEWS = 2
-    PROJECT_INVITATIONS = 3
-
-@dataclass(frozen=True)
-class Notification:
-    email_content: EmailContent
-    type:  NotificationType
-
-    def __post_init__(self):
-        if not is_valid_email(self.email_content.to_email):
-            raise ValueError(f"Invalid email address: {self.email_content.to_email}")
-        if not is_valid_email(self.email_content.from_email):
-            raise ValueError(f"Invalid email address: {self.email_content.to_email}")
+    MARKETING = "marketing"
+    NEWS = "news"
+    STATUS = "status"
 
 
+class NotificationConfig:
+    def __init__(
+        self, notification_type: NotificationType, days: int, hours: int, minutes: int
+    ):
+        self.notification_type = notification_type
+        self.days = days
+        self.hours = hours
+        self.minutes = minutes

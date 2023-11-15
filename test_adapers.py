@@ -2,7 +2,7 @@ import requests
 
 from adapters import EmailSender
 from email_server import EmailServer
-from model import EmailContent
+from model import Notification, NotificationType
 from config import EMAIL_SERVER_HOST, EMAIL_SERVER_PORT, EMAIL_SERVER_WEB_PORT
 
 
@@ -19,11 +19,12 @@ def test_message_is_correctly_sent():
     server = EmailServer(EMAIL_SERVER_HOST, EMAIL_SERVER_PORT)
     email_sender = EmailSender(server)
 
-    email_content = EmailContent(
+    email_content = Notification(
         "sender@monak.com",
         "this is a test message!",
         "test message 01",
         "receiver@monak.com",
+        NotificationType.MARKETING,
     )
     email_sender.send_email(email_content)
     latest_email = get_latest_email()
