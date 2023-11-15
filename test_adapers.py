@@ -1,23 +1,12 @@
-import requests
-
 from adapters import EmailSender
+from config import EMAIL_SERVER_HOST, EMAIL_SERVER_PORT, EMAIL_SERVER_WEB_PORT
 from email_server import EmailServer
 from model import Notification, NotificationType
-from config import EMAIL_SERVER_HOST, EMAIL_SERVER_PORT, EMAIL_SERVER_WEB_PORT
+from test_utils import get_latest_email
 
 
-def get_latest_email():
-    response = requests.get(
-        f"http://{EMAIL_SERVER_HOST}:{EMAIL_SERVER_WEB_PORT}/api/v2/messages"
-    )
-    response.raise_for_status()
-    data = response.json()
-    return data["items"][0] if data["items"] else None
-
-
-def test_message_is_correctly_sent():
-    server = EmailServer(EMAIL_SERVER_HOST, EMAIL_SERVER_PORT)
-    email_sender = EmailSender(server)
+def test_message_is_correctly_sent(email_server):
+    email_sender = EmailSender(email_server)
 
     email_content = Notification(
         "sender@monak.com",

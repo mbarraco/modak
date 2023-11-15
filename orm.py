@@ -1,7 +1,7 @@
-from sqlalchemy import Table, MetaData, Column, Integer, Enum, String
+from sqlalchemy import Table, MetaData, Column, Integer, Enum, String, DateTime
 from sqlalchemy.orm import registry
 
-from model import NotificationConfig, Notification, NotificationType
+from model import NotificationConfig, Notification, NotificationState, NotificationType
 
 mapper_registry = registry()
 
@@ -21,12 +21,14 @@ notification_configs = Table(
 notifications = Table(
     "notifications",
     metadata,
-    Column("id", Integer, primary_key=True),  # Primary key column
+    Column("id", Integer, primary_key=True),
     Column("from_email", String(255), nullable=False),
     Column("to_email", String(255), nullable=False),
     Column("subject", String(255), nullable=False),
     Column("body", String, nullable=False),
     Column("notification_type", Enum(NotificationType), nullable=False),
+    Column("state", Enum(NotificationState), nullable=False),
+    Column("last_updated", DateTime, nullable=False),
 )
 
 
