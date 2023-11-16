@@ -10,7 +10,12 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import registry
 
-from domain.model import NotificationConfig, Notification, NotificationState, NotificationType
+from domain.model import (
+    NotificationConfig,
+    Notification,
+    NotificationState,
+    NotificationType,
+)
 
 mapper_registry = registry()
 

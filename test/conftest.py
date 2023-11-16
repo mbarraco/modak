@@ -1,9 +1,10 @@
 import pytest
+from redis import Redis
 from uuid import uuid4
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
 
-from config import EMAIL_SERVER_HOST, EMAIL_SERVER_PORT
+from config import EMAIL_SERVER_HOST, EMAIL_SERVER_PORT, REDIS_HOST, REDIS_PORT
 from adapters.email_server import EmailServer
 from domain.model import Notification, NotificationType
 from adapters.orm import metadata, start_mappers
@@ -45,3 +46,10 @@ def session(in_memory_db):
     start_mappers()
     yield sessionmaker(bind=in_memory_db)()
     clear_mappers()
+
+
+@pytest.fixture(scope="session")
+def redis_client():
+    client = Redis(host=REDIS_HOST, port=REDIS_PORT)
+    yield client
+    client.flushdb()

@@ -2,7 +2,11 @@ import questionary
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from domain.model import Notification, NotificationType
-from service.service import send_notification, create_notification_config, get_all_notification_configs
+from service.service import (
+    send_notification,
+    create_notification_config,
+    get_all_notification_configs,
+)
 from adapters.email_server import EmailServer
 from config import EMAIL_SERVER_HOST, EMAIL_SERVER_PORT
 
@@ -73,7 +77,7 @@ def create_notification_config_workflow(session):
             int(hours),
             int(minutes),
             int(quota),
-            repo
+            repo,
         )
         print("Notification configuration created successfully.")
     except ValueError as e:
@@ -91,13 +95,20 @@ def show_all_notification_configs_workflow(session):
         return
 
     for config in configs:
-        print(f"Type: {config.notification_type}, Days: {config.days}, Hours: {config.hours}, "
-              f"Minutes: {config.minutes}, Quota: {config.quota}")
+        print(
+            f"Type: {config.notification_type}, Days: {config.days}, Hours: {config.hours}, "
+            f"Minutes: {config.minutes}, Quota: {config.quota}"
+        )
+
 
 def main():
     choice = questionary.select(
         "Choose an action:",
-        choices=["Send Email", "Create Notification Config", "Show All Notification Configs"]
+        choices=[
+            "Send Email",
+            "Create Notification Config",
+            "Show All Notification Configs",
+        ],
     ).ask()
 
     if choice == "Send Email":

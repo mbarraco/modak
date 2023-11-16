@@ -12,6 +12,8 @@ services:
       - EMAIL_SERVER_PORT
       - EMAIL_SERVER_WEB_PORT
       - PYTHONBREAKPOINT
+      - REDIS_HOST
+      - REDIS_PORT
       - IPDB_CONTEXT_SIZE
     volumes:
       - ./:/code
@@ -24,6 +26,11 @@ services:
     ports:
       - "1025:1025" # SMTP server
       - "8025:8025" # Web interface
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
 
 volumes:
   db-volume:

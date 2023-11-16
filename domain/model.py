@@ -69,3 +69,7 @@ class NotificationConfig:
         self.hours = hours
         self.minutes = minutes
         self.quota = quota
+
+    @property
+    def interval_in_seconds(self):
+        return self.days * 24 * 60 * 60 + self.hours * 60 * 60 + self.minutes * 60
