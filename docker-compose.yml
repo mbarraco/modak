@@ -7,6 +7,7 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - mailhog
+      - redis
     environment:
       - EMAIL_SERVER_HOST
       - EMAIL_SERVER_PORT

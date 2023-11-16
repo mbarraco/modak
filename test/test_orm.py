@@ -6,33 +6,27 @@ from domain.model import Notification, NotificationConfig, NotificationType
 def test_load_notification_config(session):
     session.execute(
         text(
-            "INSERT INTO notification_configs (notification_type, days, hours, minutes, quota) VALUES "
-            '("MARKETING", 1, 0, 0, 10),'
-            '("STATUS", 0, 1, 0, 100),'
-            '("NEWS", 0, 0, 1, 1000)'
+            "INSERT INTO notification_configs (notification_type, seconds, quota) VALUES "
+            '("MARKETING", 24 * 60 * 60, 10),'
+            '("STATUS", 60 * 60, 100),'
+            '("NEWS", 60 , 1000)'
         )
     )
     expected = [
-        NotificationConfig("MARKETING", 1, 0, 0, 10),
-        NotificationConfig("STATUS", 0, 1, 0, 100),
-        NotificationConfig("NEWS", 0, 0, 1, 1000),
+        NotificationConfig("MARKETING", 24 * 60 * 60, 10),
+        NotificationConfig("STATUS", 60 * 60, 100),
+        NotificationConfig("NEWS", 60, 1000),
     ]
     retrieved: list[NotificationConfig] = session.query(NotificationConfig).all()
     assert len(retrieved) == 3
     assert retrieved[0].notification_type.value == "MARKETING"
-    assert retrieved[0].days == 1
-    assert retrieved[0].hours == 0
-    assert retrieved[0].minutes == 0
+    assert retrieved[0].seconds == 24 * 60 * 60
 
     assert retrieved[1].notification_type.value == "STATUS"
-    assert retrieved[1].days == 0
-    assert retrieved[1].hours == 1
-    assert retrieved[1].minutes == 0
+    assert retrieved[1].seconds == 60 * 60
 
     assert retrieved[2].notification_type.value == "NEWS"
-    assert retrieved[2].days == 0
-    assert retrieved[2].hours == 0
-    assert retrieved[2].minutes == 1
+    assert retrieved[2].seconds == 60
 
 
 def test_notification_mapper_can_save(session):

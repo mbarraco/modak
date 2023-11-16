@@ -59,17 +59,13 @@ class NotificationConfig:
     def __init__(
         self,
         notification_type: NotificationType,
-        days: int,
-        hours: int,
-        minutes: int,
+        seconds: int,
         quota: int,
     ):
         self.notification_type = notification_type
-        self.days = days
-        self.hours = hours
-        self.minutes = minutes
+        self.seconds = seconds
         self.quota = quota
 
     @property
     def interval_in_seconds(self):
-        return self.days * 24 * 60 * 60 + self.hours * 60 * 60 + self.minutes * 60
+        return self.seconds

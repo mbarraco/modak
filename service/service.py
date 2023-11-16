@@ -23,12 +23,12 @@ def send_notification(
     repo.add(notification)
     repo.session.commit()
 
+    return notification.state.value
+
 
 def create_notification_config(
     notification_type: NotificationType,
-    days: int,
-    hours: int,
-    minutes: int,
+    seconds: int,
     quota: int,
     repo: NotificationConfigRepository,
 ):
@@ -39,11 +39,9 @@ def create_notification_config(
     repo.session.commit()
 
     notification_config = NotificationConfig(
-        notification_type=notification_type,
-        days=days,
-        hours=hours,
-        minutes=minutes,
-        quota=quota,
+        notification_type,
+        seconds,
+        quota,
     )
 
     repo.add(notification_config)

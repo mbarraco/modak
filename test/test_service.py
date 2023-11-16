@@ -1,4 +1,5 @@
 from sqlalchemy import text
+from time import sleep
 
 import service.service as service
 from adapters import (
@@ -8,7 +9,12 @@ from adapters import (
     SqlRateLimiter,
     RedisRateLimiter,
 )
-from domain.model import Notification, NotificationConfig, NotificationState, NotificationType
+from domain.model import (
+    Notification,
+    NotificationConfig,
+    NotificationState,
+    NotificationType,
+)
 from .test_utils import count_emails, get_latest_email
 
 
@@ -41,8 +47,8 @@ def test_do_send_email_saves_notification(email_server, session, create_notifica
 def test_throttling_sql_rate_limiter(email_server, session, create_notification):
     session.execute(
         text(
-            "INSERT INTO notification_configs (notification_type, days, hours, minutes, quota)"
-            f" VALUES ('{NotificationType.NEWS.value}', 0, 0, 1, 1)"
+            "INSERT INTO notification_configs (notification_type, seconds, quota)"
+            f" VALUES ('{NotificationType.NEWS.value}', 60, 1)"
         )
     )
 
@@ -57,6 +63,7 @@ def test_throttling_sql_rate_limiter(email_server, session, create_notification)
     repo = NotificationRepository(session)
     rate_limiter = SqlRateLimiter(session, NotificationConfigRepository(session))
     notification = create_notification(NotificationType.NEWS)
+    notification.to_email = "to-1234@email.com"
     service.send_notification(notification, email_sender, repo, rate_limiter)
     retrieved = repo.list()
     assert len(retrieved) == 2
@@ -70,8 +77,8 @@ def test_throttling_sql_rate_limiter_different_types(
 ):
     session.execute(
         text(
-            "INSERT INTO notification_configs (notification_type, days, hours, minutes, quota)"
-            f" VALUES ('{NotificationType.NEWS.value}', 0, 0, 1, 1)"
+            "INSERT INTO notification_configs (notification_type, seconds, quota)"
+            f" VALUES ('{NotificationType.NEWS.value}', 60, 1)"
         )
     )
 
@@ -86,10 +93,13 @@ def test_throttling_sql_rate_limiter_different_types(
     repo = NotificationRepository(session)
     rate_limiter = SqlRateLimiter(session, NotificationConfigRepository(session))
     notification = create_notification(NotificationType.NEWS)
+    notification.to_email = "to-1234@email.com"
     service.send_notification(notification, email_sender, repo, rate_limiter)
     notification = create_notification(NotificationType.STATUS)
+    notification.to_email = "to-1234@email.com"
     service.send_notification(notification, email_sender, repo, rate_limiter)
     notification = create_notification(NotificationType.MARKETING)
+    notification.to_email = "to-1234@email.com"
     service.send_notification(notification, email_sender, repo, rate_limiter)
     retrieved = repo.list()
     assert len(retrieved) == 4
@@ -102,46 +112,56 @@ def test_throttling_sql_rate_limiter_different_types(
 
 def test_create_notification_config_saves_config(session):
     repo = NotificationConfigRepository(session)
-    service.create_notification_config(NotificationType.NEWS, 1, 2, 30, 100, repo)
+    service.create_notification_config(NotificationType.NEWS, 11, 100, repo)
 
     config = repo.find_by_type(NotificationType.NEWS)
     assert config is not None
-    assert config.days == 1
-    assert config.hours == 2
-    assert config.minutes == 30
+    assert config.seconds == 11
     assert config.quota == 100
 
 
 def test_create_notification_config_correct_attributes(session):
     repo = NotificationConfigRepository(session)
-    service.create_notification_config(NotificationType.MARKETING, 0, 5, 0, 50, repo)
+    service.create_notification_config(NotificationType.MARKETING, 19, 50, repo)
 
     config = repo.find_by_type(NotificationType.MARKETING)
     assert config.notification_type == NotificationType.MARKETING
-    assert config.days == 0
-    assert config.hours == 5
-    assert config.minutes == 0
+    assert config.seconds == 19
     assert config.quota == 50
 
 
-def test_throttling_redis_rate_limiter(email_server, session, redis_client, create_notification):
+def test_throttling_redis_rate_limiter(
+    email_server, session, redis_client, create_notification
+):
     # Configure RedisRateLimiter
     notification_config_repo = NotificationConfigRepository(session)
     rate_limiter = RedisRateLimiter(redis_client, notification_config_repo)
-    notification_config_repo.add(NotificationConfig(NotificationType.NEWS, 0, 0, 1, 1))
+    notification_config_repo.add(NotificationConfig(NotificationType.NEWS, 1, 1))
 
     email_sender = EmailSender(email_server)
     notification_repo = NotificationRepository(session)
 
     # Create and send notification
     notification = create_notification(NotificationType.NEWS)
-    service.send_notification(notification, email_sender, notification_repo, rate_limiter)
+    service.send_notification(
+        notification, email_sender, notification_repo, rate_limiter
+    )
 
     # Attempt to send another notification of the same type
     second_notification = create_notification(NotificationType.NEWS)
     second_notification.to_email = notification.to_email
-    service.send_notification(second_notification, email_sender, notification_repo, rate_limiter)
-    second_notification = create_notification(NotificationType.NEWS)
-    second_notification.to_email = notification.to_email
-    service.send_notification(second_notification, email_sender, notification_repo, rate_limiter)
+    service.send_notification(
+        second_notification, email_sender, notification_repo, rate_limiter
+    )
+    assert count_emails() == 1
+
+    sleep(2)
+    third = create_notification(NotificationType.NEWS)
+    third.to_email = notification.to_email
+    service.send_notification(third, email_sender, notification_repo, rate_limiter)
     assert count_emails() == 2
+    retrieved = NotificationRepository(session).list()
+    assert len(retrieved) == 3
+    assert retrieved[0].state == NotificationState.SENT
+    assert retrieved[1].state == NotificationState.REJECTED
+    assert retrieved[2].state == NotificationState.SENT

@@ -5,7 +5,7 @@ from typing import Optional
 from redis import Redis
 from sqlalchemy.orm import Session
 
-from domain.model import Notification
+from domain.model import Notification, NotificationState
 
 from . import NotificationConfigRepository
 
@@ -27,13 +27,15 @@ class SqlRateLimiter(AbstractRateLimiter):
             return True
 
         time_limit = datetime.utcnow() - timedelta(
-            days=config.days, hours=config.hours, minutes=config.minutes
+            seconds=config.interval_in_seconds
         )
         recent_notifications_count = (
             self.session.query(Notification)
             .filter(
                 Notification.notification_type == notification.notification_type,
+                Notification.state == NotificationState.SENT,
                 Notification.last_updated > time_limit,
+                Notification.to_email == notification.to_email
             )
             .count()
         )
@@ -59,31 +61,29 @@ class RedisRateLimiter:
     def shall_pass(self, notification: Notification) -> bool:
         config = self.repo.find_by_type(notification.notification_type)
         bucket_key = self._bucket_key(notification)
-        token_count, last_reset = self._get_bucket(bucket_key)
-        if token_count is None:
-            token_count = config.quota
-            last_reset = int(datetime.now().timestamp())
+        token_count, last_reset = self._get_or_initialize_bucket_values(bucket_key, config)
 
         now = datetime.now().timestamp()
 
-        # Reset the token count if the reset interval has passed
-        if now - last_reset > config.interval_in_seconds:
-            token_count = config.quota
-            last_reset = now
-
+        if self._should_reset_tokens(now, last_reset, config.interval_in_seconds):
+            token_count, last_reset = config.quota, now
         if token_count > 0:
-            # Consume a token
             self._update_bucket(bucket_key, token_count - 1, last_reset)
             return True
         else:
             return False
 
-    def _get_bucket(self, key: str) -> Optional[tuple]:
+    def _get_or_initialize_bucket_values(self, key: str, config) -> tuple[int, int]:
         data = self.redis_client.get(key)
-        token_count, last_reset = None, None
         if data:
-            token_count, last_reset = map(int, data.decode().split(","))
+            token_count, last_reset = map(float, data.decode().split(","))
+        else:
+            token_count = config.quota
+            last_reset = float(datetime.now().timestamp())
         return token_count, last_reset
+
+    def _should_reset_tokens(self, now: int, last_reset: int, interval_seconds: int) -> bool:
+        return now - last_reset > interval_seconds
 
     def _update_bucket(self, key: str, token_count: int, last_reset: int) -> None:
         data = f"{token_count},{last_reset}"

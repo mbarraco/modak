@@ -8,7 +8,6 @@ def clear_all_emails():
             f"http://{EMAIL_SERVER_HOST}:{EMAIL_SERVER_WEB_PORT}/api/v1/messages"
         )
         response.raise_for_status()
-        print("All emails cleared successfully.")
     except requests.RequestException as e:
         print(f"An error occurred: {e}")
 

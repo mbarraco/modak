@@ -1,5 +1,28 @@
 # Rate limited email sending module
 
+## TL;DR
+
+### Run tests
+
+```bash
+make test
+```
+**tip**: a good choice for start reading the codebase is to check `test/test_service.py`
+
+
+### Use as a tool
+
+You can **(i)** send emails to a mailhog server or **(ii)** create throttling configurations or **(iii)** send emails
+by using the interactive cli tool:
+
+```bash
+make run-cli
+```
+
+* Mailhog Web interface: [http://127.0.0.1:8025/](http://127.0.0.1:8025/)
+
+
+
 ##  Requirements
 
 We have a Notification system that sends out email notifications of various types (supdatesupdate, daily news, project invitations, etc). We need to protect recipients from getting too many emails, either due to system errors or due to abuse, so let's limit the number of emails sent to them by implementing a rate-limited version of NotificationService.

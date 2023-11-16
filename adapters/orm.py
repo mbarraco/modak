@@ -27,9 +27,7 @@ notification_configs = Table(
     metadata,
     Column("id", Integer, primary_key=True),  # Primary key column
     Column("notification_type", Enum(NotificationType), nullable=False, unique=True),
-    Column("days", Integer, nullable=False),
-    Column("hours", Integer, nullable=False),
-    Column("minutes", Integer, nullable=False),
+    Column("seconds", Integer, nullable=False),
     Column("quota", Integer, nullable=False),
     CheckConstraint("quota >= 1", name="check_quota_min"),
 )
