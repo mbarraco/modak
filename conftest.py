@@ -8,23 +8,26 @@ from email_server import EmailServer
 from model import Notification, NotificationType
 from orm import metadata, start_mappers
 
+from test_utils import clear_all_emails
 
 @pytest.fixture
-def notification_news():
-    def _create_notification() -> Notification:
+def create_notification():
+    def _create_notification(notification_type: NotificationType) -> Notification:
         return Notification(
             f"from-{uuid4()}@modak.com",
             "this is the body",
             "fresh news",
             f"to-{uuid4()}@modak.com",
-            NotificationType.NEWS,
+            notification_type,
         )
     return _create_notification
+
 
 @pytest.fixture
 def email_server():
     server = EmailServer(EMAIL_SERVER_HOST, EMAIL_SERVER_PORT)
     yield server
+    clear_all_emails()
     server.close()
 
 

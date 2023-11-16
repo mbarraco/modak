@@ -1,4 +1,8 @@
+# dev
+ipdb
+black
 pytest
 pytest-sugar
 requests
-black
+# prod
+sqlalchemy

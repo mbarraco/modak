@@ -16,7 +16,7 @@ class Notification:
         body: str,
         subject: str,
         to_email: str,
-        notification_type: "NotificationType"
+        notification_type: "NotificationType",
     ):
         self.from_email = from_email
         self.body = body
@@ -43,23 +43,30 @@ class Notification:
     def mark_updated(self):
         self.last_updated = datetime.utcnow()
 
+
 class NotificationState(Enum):
-    PENDING = "pending"
-    SENT = "sent"
-    REJECTED = "rejected"
+    PENDING = "PENDING"
+    SENT = "SENT"
+    REJECTED = "REJECTED"
 
 
 class NotificationType(Enum):
-    MARKETING = "marketing"
-    NEWS = "news"
-    STATUS = "status"
+    MARKETING = "MARKETING"
+    NEWS = "NEWS"
+    STATUS = "STATUS"
 
 
 class NotificationConfig:
     def __init__(
-        self, notification_type: NotificationType, days: int, hours: int, minutes: int
+        self,
+        notification_type: NotificationType,
+        days: int,
+        hours: int,
+        minutes: int,
+        quota: int,
     ):
         self.notification_type = notification_type
         self.days = days
         self.hours = hours
         self.minutes = minutes
+        self.quota = quota

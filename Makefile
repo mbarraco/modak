@@ -1,7 +1,7 @@
 .PHONY: test build down bash restart
 
 SERVICE_NAME=app
-TEST_COMMAND=pytest
+TEST_COMMAND=pytest -s
 
 test:
 	docker-compose run --rm $(SERVICE_NAME) $(TEST_COMMAND)

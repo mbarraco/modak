@@ -1,4 +1,13 @@
-from sqlalchemy import Table, MetaData, Column, Integer, Enum, String, DateTime
+from sqlalchemy import (
+    Table,
+    MetaData,
+    Column,
+    Integer,
+    Enum,
+    String,
+    DateTime,
+    CheckConstraint,
+)
 from sqlalchemy.orm import registry
 
 from model import NotificationConfig, Notification, NotificationState, NotificationType
@@ -16,6 +25,8 @@ notification_configs = Table(
     Column("days", Integer, nullable=False),
     Column("hours", Integer, nullable=False),
     Column("minutes", Integer, nullable=False),
+    Column("quota", Integer, nullable=False),
+    CheckConstraint("quota >= 1", name="check_quota_min"),
 )
 
 notifications = Table(
