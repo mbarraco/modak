@@ -1,8 +1,10 @@
 # dev
 ipdb
 black
+pylint
 pytest
 pytest-sugar
 requests
 # prod
 sqlalchemy
+questionary

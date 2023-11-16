@@ -1,9 +1,12 @@
-from copy import deepcopy
-
 from sqlalchemy import text
 
 import service
-from adapters import EmailSender, NotificationRepository, NotificationConfigRepository, SqlRateLimiter
+from adapters import (
+    EmailSender,
+    NotificationRepository,
+    NotificationConfigRepository,
+    SqlRateLimiter,
+)
 from model import Notification, NotificationState, NotificationType
 from test_utils import count_emails, get_latest_email
 
@@ -31,7 +34,7 @@ def test_do_send_email_saves_notification(email_server, session, create_notifica
     service.send_notification(notification, email_sender, repo, rate_limiter)
     retrieved = repo.list()
     assert len(retrieved) == 1
-    retrieved[0] == notification
+    assert retrieved[0] == notification
 
 
 def test_throttling_sql_rate_limiter(email_server, session, create_notification):
@@ -61,8 +64,9 @@ def test_throttling_sql_rate_limiter(email_server, session, create_notification)
     assert get_latest_email() is None
 
 
-
-def test_throttling_sql_rate_limiter_different_types(email_server, session, create_notification):
+def test_throttling_sql_rate_limiter_different_types(
+    email_server, session, create_notification
+):
     session.execute(
         text(
             "INSERT INTO notification_configs (notification_type, days, hours, minutes, quota)"
@@ -88,9 +92,8 @@ def test_throttling_sql_rate_limiter_different_types(email_server, session, crea
     service.send_notification(notification, email_sender, repo, rate_limiter)
     retrieved = repo.list()
     assert len(retrieved) == 4
-    assert retrieved[0].state == NotificationState.SENT # this is not a real sent email
+    assert retrieved[0].state == NotificationState.SENT  # this is not a real sent email
     assert retrieved[1].state == NotificationState.REJECTED
     assert retrieved[2].state == NotificationState.SENT
     assert retrieved[3].state == NotificationState.SENT
     assert count_emails() == 2
-

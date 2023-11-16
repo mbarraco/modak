@@ -1,6 +1,6 @@
-from model import Notification, NotificationConfig, NotificationType
-
 from sqlalchemy import text
+
+from model import Notification, NotificationConfig, NotificationType
 
 
 def test_load_notification_config(session):
@@ -19,20 +19,20 @@ def test_load_notification_config(session):
     ]
     retrieved: list[NotificationConfig] = session.query(NotificationConfig).all()
     assert len(retrieved) == 3
-    retrieved[0].notification_type == "MARKETING"
-    retrieved[0].days == 1
-    retrieved[0].hours == 0
-    retrieved[0].minutes == 0
+    assert retrieved[0].notification_type.value == "MARKETING"
+    assert retrieved[0].days == 1
+    assert retrieved[0].hours == 0
+    assert retrieved[0].minutes == 0
 
-    retrieved[1].notification_type == "STATUS"
-    retrieved[1].days == 0
-    retrieved[1].hours == 1
-    retrieved[1].minutes == 0
+    assert retrieved[1].notification_type.value == "STATUS"
+    assert retrieved[1].days == 0
+    assert retrieved[1].hours == 1
+    assert retrieved[1].minutes == 0
 
-    retrieved[2].notification_type == "NEWS"
-    retrieved[2].days == 0
-    retrieved[2].hours == 0
-    retrieved[2].minutes == 1
+    assert retrieved[2].notification_type.value == "NEWS"
+    assert retrieved[2].days == 0
+    assert retrieved[2].hours == 0
+    assert retrieved[2].minutes == 1
 
 
 def test_notification_mapper_can_save(session):

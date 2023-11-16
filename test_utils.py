@@ -2,7 +2,6 @@ import requests
 from config import EMAIL_SERVER_HOST, EMAIL_SERVER_WEB_PORT
 
 
-
 def clear_all_emails():
     try:
         response = requests.delete(
@@ -25,6 +24,7 @@ def get_email_data():
         print(f"An error occurred: {e}")
         return None
 
+
 def get_latest_email():
     """TODO: can be optimized by asking for only 1 email"""
     data = get_email_data()
@@ -32,9 +32,9 @@ def get_latest_email():
         return data["items"][0]
     return None
 
+
 def count_emails():
     data = get_email_data()
     if data:
         return len(data["items"])
     return 0
-

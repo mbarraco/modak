@@ -1,6 +1,4 @@
 from adapters import EmailSender
-from config import EMAIL_SERVER_HOST, EMAIL_SERVER_PORT, EMAIL_SERVER_WEB_PORT
-from email_server import EmailServer
 from model import Notification, NotificationType
 from test_utils import get_latest_email
 

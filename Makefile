@@ -1,4 +1,4 @@
-.PHONY: test build down bash restart
+.PHONY: test build down bash restart run-cli
 
 SERVICE_NAME=app
 TEST_COMMAND=pytest -s
@@ -17,3 +17,8 @@ bash:
 
 restart:
 	docker-compose restart
+
+run-cli:
+	@echo "Running cli.py in a new Docker container..."
+	@docker-compose run --rm -it app python /code/cli.py
+

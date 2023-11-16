@@ -3,12 +3,13 @@ from uuid import uuid4
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
 
-from config import EMAIL_SERVER_HOST, EMAIL_SERVER_PORT, EMAIL_SERVER_WEB_PORT
+from config import EMAIL_SERVER_HOST, EMAIL_SERVER_PORT
 from email_server import EmailServer
 from model import Notification, NotificationType
 from orm import metadata, start_mappers
 
 from test_utils import clear_all_emails
+
 
 @pytest.fixture
 def create_notification():
@@ -20,6 +21,7 @@ def create_notification():
             f"to-{uuid4()}@modak.com",
             notification_type,
         )
+
     return _create_notification
 
 

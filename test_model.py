@@ -1,5 +1,5 @@
 import pytest
-from model import Notification, Notification, NotificationType
+from model import Notification, NotificationType
 
 
 def test_invalid_notification_from_address():
