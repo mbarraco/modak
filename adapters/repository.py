@@ -2,7 +2,7 @@ import abc
 
 from sqlalchemy.orm import Session
 
-from model import Notification, NotificationConfig
+from domain.model import Notification, NotificationConfig
 
 
 class AbstractRepository(abc.ABC):

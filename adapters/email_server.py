@@ -1,7 +1,7 @@
 import smtplib
 from email.message import EmailMessage
 
-from model import Notification
+from domain.model import Notification
 
 
 class EmailServer:

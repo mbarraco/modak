@@ -4,11 +4,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
 
 from config import EMAIL_SERVER_HOST, EMAIL_SERVER_PORT
-from email_server import EmailServer
-from model import Notification, NotificationType
-from orm import metadata, start_mappers
+from adapters.email_server import EmailServer
+from domain.model import Notification, NotificationType
+from adapters.orm import metadata, start_mappers
 
-from test_utils import clear_all_emails
+from .test_utils import clear_all_emails
 
 
 @pytest.fixture

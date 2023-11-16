@@ -1,6 +1,6 @@
 from adapters import EmailSender
-from model import Notification, NotificationType
-from test_utils import get_latest_email
+from domain.model import Notification, NotificationType
+from .test_utils import get_latest_email
 
 
 def test_message_is_correctly_sent(email_server):

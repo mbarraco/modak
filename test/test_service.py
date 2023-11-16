@@ -1,14 +1,14 @@
 from sqlalchemy import text
 
-import service
+import service.service as service
 from adapters import (
     EmailSender,
     NotificationRepository,
     NotificationConfigRepository,
     SqlRateLimiter,
 )
-from model import Notification, NotificationState, NotificationType
-from test_utils import count_emails, get_latest_email
+from domain.model import Notification, NotificationState, NotificationType
+from .test_utils import count_emails, get_latest_email
 
 
 def test_send_notification(email_server, session, create_notification):
@@ -97,3 +97,27 @@ def test_throttling_sql_rate_limiter_different_types(
     assert retrieved[2].state == NotificationState.SENT
     assert retrieved[3].state == NotificationState.SENT
     assert count_emails() == 2
+
+
+def test_create_notification_config_saves_config(session):
+    repo = NotificationConfigRepository(session)
+    service.create_notification_config(NotificationType.NEWS, 1, 2, 30, 100, repo)
+
+    config = repo.find_by_type(NotificationType.NEWS)
+    assert config is not None
+    assert config.days == 1
+    assert config.hours == 2
+    assert config.minutes == 30
+    assert config.quota == 100
+
+
+def test_create_notification_config_correct_attributes(session):
+    repo = NotificationConfigRepository(session)
+    service.create_notification_config(NotificationType.MARKETING, 0, 5, 0, 50, repo)
+
+    config = repo.find_by_type(NotificationType.MARKETING)
+    assert config.notification_type == NotificationType.MARKETING
+    assert config.days == 0
+    assert config.hours == 5
+    assert config.minutes == 0
+    assert config.quota == 50

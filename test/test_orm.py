@@ -1,6 +1,6 @@
 from sqlalchemy import text
 
-from model import Notification, NotificationConfig, NotificationType
+from domain.model import Notification, NotificationConfig, NotificationType
 
 
 def test_load_notification_config(session):

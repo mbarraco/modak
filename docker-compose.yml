@@ -15,6 +15,7 @@ services:
       - IPDB_CONTEXT_SIZE
     volumes:
       - ./:/code
+      - db-volume:/database.db
     ports:
       - "5005:80"
 
@@ -23,3 +24,6 @@ services:
     ports:
       - "1025:1025" # SMTP server
       - "8025:8025" # Web interface
+
+volumes:
+  db-volume:

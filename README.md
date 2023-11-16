@@ -31,14 +31,23 @@ git clone git@github.com:mbarraco/modak.git
 cd modak
 ```
 
-setup the environment
+setup the environment by either
 ```bash
 docker-compose up -d
 ```
-## Usage
-The CLI tool in this project provides an interactive way to send test emails which can be viewed using the MailHog server. To use the CLI, run make run-cli from the terminal. This will prompt you to enter details for the email you wish to send, including the recipient's address, the email subject, and body. After you've inputted these details, the CLI will send the email, which is intercepted by the MailHog server for testing purposes.
+or
+```bash
+docker compose up -d
+```
 
-To view the sent emails, open a web browser and navigate to the MailHog web interface at http://127.0.0.1:8025/. Here, you'll see an inbox-like interface where all emails captured by MailHog are displayed. This setup is particularly useful for developers and testers who need to verify email functionalities in applications without sending actual emails to real addresses.
+## Usage
+
+* **Send Emails**: Use the CLI to interactively create and send emails.
+* **Create Notification Config**: Define rate limits for email notifications through the CLI.
+* **View configuratios**n: List all existing email notification configurations with the CLI.
+* **Mail server for testing**: emails sent via the CLI are captured by MailHog, a mock SMTP server.
+Access MailHog Web Interface: View and manage test emails at http://127.0.0.1:8025/.
+
 
 run the cli
 ```bash

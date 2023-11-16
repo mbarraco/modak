@@ -1,6 +1,6 @@
 import abc
-from email_server import EmailServer
-from model import Notification
+from adapters.email_server import EmailServer
+from domain.model import Notification
 
 
 class AbstractEmailSender(abc.ABC):
