@@ -25,7 +25,7 @@ metadata = MetaData()
 notification_configs = Table(
     "notification_configs",
     metadata,
-    Column("id", Integer, primary_key=True),  # Primary key column
+    Column("id", Integer, primary_key=True),  
     Column("notification_type", Enum(NotificationType), nullable=False, unique=True),
     Column("seconds", Integer, nullable=False),
     Column("quota", Integer, nullable=False),

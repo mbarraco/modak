@@ -1,6 +1,6 @@
 # dev
-ipdb
 black
+ipdb
 pylint
 pytest
 pytest-sugar

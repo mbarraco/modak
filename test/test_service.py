@@ -133,7 +133,6 @@ def test_create_notification_config_correct_attributes(session):
 def test_throttling_redis_rate_limiter(
     email_server, session, redis_client, create_notification
 ):
-    # Configure RedisRateLimiter
     notification_config_repo = NotificationConfigRepository(session)
     rate_limiter = RedisRateLimiter(redis_client, notification_config_repo)
     notification_config_repo.add(NotificationConfig(NotificationType.NEWS, 1, 1))
@@ -141,13 +140,11 @@ def test_throttling_redis_rate_limiter(
     email_sender = EmailSender(email_server)
     notification_repo = NotificationRepository(session)
 
-    # Create and send notification
     notification = create_notification(NotificationType.NEWS)
     service.send_notification(
         notification, email_sender, notification_repo, rate_limiter
     )
 
-    # Attempt to send another notification of the same type
     second_notification = create_notification(NotificationType.NEWS)
     second_notification.to_email = notification.to_email
     service.send_notification(

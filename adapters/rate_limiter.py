@@ -26,16 +26,14 @@ class SqlRateLimiter(AbstractRateLimiter):
         if not config:
             return True
 
-        time_limit = datetime.utcnow() - timedelta(
-            seconds=config.interval_in_seconds
-        )
+        time_limit = datetime.utcnow() - timedelta(seconds=config.interval_in_seconds)
         recent_notifications_count = (
             self.session.query(Notification)
             .filter(
                 Notification.notification_type == notification.notification_type,
                 Notification.state == NotificationState.SENT,
                 Notification.last_updated > time_limit,
-                Notification.to_email == notification.to_email
+                Notification.to_email == notification.to_email,
             )
             .count()
         )
@@ -63,7 +61,9 @@ class RedisRateLimiter:
         if config is None:
             return True
         bucket_key = self._bucket_key(notification)
-        token_count, last_reset = self._get_or_initialize_bucket_values(bucket_key, config)
+        token_count, last_reset = self._get_or_initialize_bucket_values(
+            bucket_key, config
+        )
 
         now = datetime.now().timestamp()
 
@@ -75,7 +75,9 @@ class RedisRateLimiter:
         else:
             return False
 
-    def _get_or_initialize_bucket_values(self, key: str, config: NotificationConfig) -> tuple[int, int]:
+    def _get_or_initialize_bucket_values(
+        self, key: str, config: NotificationConfig
+    ) -> tuple[int, int]:
         data = self.redis_client.get(key)
         if data:
             token_count, last_reset = map(float, data.decode().split(","))
@@ -84,7 +86,9 @@ class RedisRateLimiter:
             last_reset = float(datetime.now().timestamp())
         return token_count, last_reset
 
-    def _should_reset_tokens(self, now: int, last_reset: int, interval_seconds: int) -> bool:
+    def _should_reset_tokens(
+        self, now: int, last_reset: int, interval_seconds: int
+    ) -> bool:
         return now - last_reset > interval_seconds
 
     def _update_bucket(self, key: str, token_count: int, last_reset: int) -> None:

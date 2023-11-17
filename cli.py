@@ -21,8 +21,6 @@ from adapters import (
 from domain.model import Notification, NotificationType
 from adapters.orm import metadata, start_mappers
 
-# Setup engine and session
-# Change to a file-based SQLite database
 engine = create_engine("sqlite:///database.db")
 metadata.create_all(engine)
 start_mappers()
@@ -31,8 +29,8 @@ session = Session()
 
 redis_client = Redis(host=REDIS_HOST, port=REDIS_PORT)
 
+
 def send_email_workflow(session, redis_client):
-    use_token_bucket = questionary.confirm("Use Token Bucket strategy for throttling?", default=True).ask()
     to_email = questionary.text("Enter recipient email address:").ask()
     from_email = questionary.text("Enter sender email address:").ask()
     subject = questionary.text("Enter email subject:").ask()
@@ -62,7 +60,6 @@ def send_email_workflow(session, redis_client):
         print(f"Invalid value provided:\n {e}")
 
 
-
 def create_notification_config_workflow(session):
     notification_type = questionary.select(
         "Select notification type:", choices=[nt.value for nt in NotificationType]
@@ -74,10 +71,7 @@ def create_notification_config_workflow(session):
 
     try:
         create_notification_config(
-            NotificationType[notification_type],
-            int(seconds),
-            int(quota),
-            repo
+            NotificationType[notification_type], int(seconds), int(quota), repo
         )
         print("Notification configuration created successfully.")
     except ValueError as e:
