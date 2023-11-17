@@ -5,7 +5,7 @@ from typing import Optional
 from redis import Redis
 from sqlalchemy.orm import Session
 
-from domain.model import Notification, NotificationState
+from domain.model import Notification, NotificationConfig, NotificationState
 
 from . import NotificationConfigRepository
 
@@ -60,6 +60,8 @@ class RedisRateLimiter:
 
     def shall_pass(self, notification: Notification) -> bool:
         config = self.repo.find_by_type(notification.notification_type)
+        if config is None:
+            return True
         bucket_key = self._bucket_key(notification)
         token_count, last_reset = self._get_or_initialize_bucket_values(bucket_key, config)
 
@@ -73,7 +75,7 @@ class RedisRateLimiter:
         else:
             return False
 
-    def _get_or_initialize_bucket_values(self, key: str, config) -> tuple[int, int]:
+    def _get_or_initialize_bucket_values(self, key: str, config: NotificationConfig) -> tuple[int, int]:
         data = self.redis_client.get(key)
         if data:
             token_count, last_reset = map(float, data.decode().split(","))
